@@ -22,6 +22,8 @@ get_missing_values <- function(i, data) {
   return(count <- ifelse(length(count) > 0, count, 0))
 }
 
+# Obtener columna que posee más valores sin documentar
+
 missing_values_recount <- sapply(seq_len(ncol(data)), 
        get_missing_values, 
        data) %>%
@@ -29,7 +31,11 @@ missing_values_recount <- sapply(seq_len(ncol(data)),
   mutate(attr = colnames(data)) %>%
   rename(n = ".") 
 
-       
+# Obtener qué paciente posee la mayor cantidad de atributos sin documentar
+missing_values_per_patient <- rowSums(data == "?")
+max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
+
+
 #Estadisticas descriptivas ----
 
 #Estadisticas inferenciales ----
