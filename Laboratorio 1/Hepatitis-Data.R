@@ -11,6 +11,25 @@ data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/he
 names(data) <- c('Class', 'Age', 'Sex', 'Steroid', 'Antivirals', 'Fatigue', 'Malaise', 'Anorexia', 'Liver_Big', 'Liver_Firm', 'Spleen_Palpable',
                  'Spiders', 'Ascites', 'Varices', 'Bilirubin', 'Alk_Phosphate', 'Sgot', 'Albumin', 'Protime', 'Histology')
 
+
+# Contar variables faltantes por columna
+
+get_missing_values <- function(i, data) {
+  count <- data %>% 
+    count(data[i]) %>% 
+    filter(get(colnames(data)[i]) == "?") %>% 
+    pull(n)
+  return(count <- ifelse(length(count) > 0, count, 0))
+}
+
+missing_values_recount <- sapply(seq_len(ncol(data)), 
+       get_missing_values, 
+       data) %>%
+  as.data.frame %>%
+  mutate(attr = colnames(data)) %>%
+  rename(n = ".") 
+
+       
 #Estadisticas descriptivas ----
 
 #Estadisticas inferenciales ----
