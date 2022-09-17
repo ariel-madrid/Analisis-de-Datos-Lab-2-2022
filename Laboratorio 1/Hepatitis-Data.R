@@ -3,7 +3,8 @@ library(dplyr)
 library(ggpubr)
 library(ggplot2)
 library(VIM)
-
+library(tidyr)
+library(naniar)
 #Leer data set de Hepatitis.
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
@@ -25,17 +26,10 @@ data <- data %>% mutate_all(~na_if(., "?"))
 
 #Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
 
-histogram_of_missing_values <- suppressWarnings(aggr(data, col=c('navyblue','red'), 
-                               numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.7, 
-                               gap=3, ylab=c("Histograma de valores faltantes en data set","Patron")))
+plot_missing_data <- gg_miss_var(data, show_pct = TRUE)+ labs(y = "Porcentaje de valores faltantes")
+print(plot_missing_data)
 
 #Estadisticas descriptivas ----
-
-
-
-
-
-
 
 
 
