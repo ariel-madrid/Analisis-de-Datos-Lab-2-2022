@@ -19,18 +19,24 @@ missing_values_recount <- data %>% summarise_all(~ sum(. == "?"))
 
 # Obtener qu? paciente posee la mayor cantidad de atributos sin documentar
 missing_values_per_patient <- rowSums(data == "?")
-max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
+missing_values_per_patient <- data.frame(missing_values = missing_values_per_patient) %>% 
+                                mutate(id = seq(nrow(data))) %>%
+                                arrange(desc(missing_values))
+
+# max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
 
 #Cambiar '?' valores a NA
 data <- data %>% mutate_all(~na_if(., "?"))
 
 #Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
 
-plot_missing_data <- gg_miss_var(data, show_pct = TRUE)+ labs(y = "Porcentaje de valores faltantes")
+plot_missing_data <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes")
 print(plot_missing_data)
 
-#Estadisticas descriptivas ----
+# Limpiar los datos
+
+# Estadisticas descriptivas ----
 
 
 
-#Estadisticas inferenciales ----
+# Análisis inferencial ----
