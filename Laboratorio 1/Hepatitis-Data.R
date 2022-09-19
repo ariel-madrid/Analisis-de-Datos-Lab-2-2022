@@ -23,6 +23,9 @@ missing_values_per_patient <- data.frame(missing_values = missing_values_per_pat
                                 mutate(id = seq(nrow(data))) %>%
                                 arrange(desc(missing_values))
 
+#Obtener top 10 pacientes con mas valores NA
+ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
+
 # max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
 
 #Cambiar '?' valores a NA
@@ -35,8 +38,53 @@ print(plot_missing_data)
 
 # Limpiar los datos
 
+#Eliminar variable Protime, dado que contiene 43% de valores NA.
+data$Protime <- NULL
+
+#Eliminar top 10 filas con mas valores NA's
+data$id <- seq(1:155)
+data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
+
+#Convertir las columnas a los formatos correctos
+data$Class <- as.character(data$Class)
+data$Age <- as.integer(data$Age)
+data$Sex <- as.character(data$Sex)
+data$Steroid <- as.character(data$Steroid)
+data$Antivirals <- as.character(data$Antivirals)
+data$Fatigue <- as.character(data$Fatigue)
+data$Malaise <- as.character(data$Malaise)
+data$Anorexia <- as.character(data$Anorexia)
+data$Liver_Big <- as.character(data$Liver_Big)
+data$Liver_Firm < as.character(data$Liver_Firm)
+data$Spleen_Palpable <- as.character(data$Spleen_Palpable)
+data$Spiders <- as.character(data$Spiders)
+data$Ascites <- as.character(data$Ascites)
+data$Varices <- as.character(data$Varices)
+data$Bilirubin <- as.numeric(data$Bilirubin)
+data$Alk_Phosphate <- as.integer(data$Alk_Phosphate)
+data$Sgot < as.integer(data$Sgot)
+data$Albumin <- as.numeric(data$Albumin)
+data$Histology <- as.character(data$Histology)
+
+#Obtener la moda de una determinada columna
+getmode <- function(v){
+  v=v[nchar(as.character(v))>0]
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+#Impute Missing Data
+for (cols in colnames(data)) {
+  if (cols %in% names(data[,sapply(data, is.numeric)])) {
+    data<-data%>%mutate(!!cols := replace(!!rlang::sym(cols), is.na(!!rlang::sym(cols)), mean(!!rlang::sym(cols), na.rm=TRUE)))
+  }
+  else {
+    data<-data%>%mutate(!!cols := replace(!!rlang::sym(cols), is.na(!!rlang::sym(cols)), getmode(!!rlang::sym(cols))))
+  }
+}
+
 # Estadisticas descriptivas ----
 
 
 
-# Análisis inferencial ----
+# An?lisis inferencial ----
