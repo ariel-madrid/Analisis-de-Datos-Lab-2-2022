@@ -85,6 +85,38 @@ for (cols in colnames(data)) {
 
 # Estadisticas descriptivas ----
 
+# Para las primeras 10 variables, 9 son categóricas.
+# Se hará un recuento de la frecuencia para cada una.
 
+
+# Función que entrega un gráfico de las variables categóricas dicotómicas que solo
+# entregan información de si un síntoma está presente o no.
+# Entrada: datos: dataframe/table, column_name: string
+# Salida: gráfico de barras
+summarise_aux <- function(data, column_name){
+  data <- data.frame(x = c("Presente", "No presente"), 
+                     total = count(data, get(column_name)) %>% pull())
+  return(ggbarplot(data, x = 'x', y = 'total', label = TRUE, lab.pos = "out", xlab = column_name))
+}
+
+gender <- data.frame(sex = c("Masculino", "Femenino"), total = count(data, Sex) %>% pull())
+gender_plt <- ggbarplot(gender, x = 'sex', y = 'total', label = TRUE, lab.pos = "out")
+
+steroid_plt <- summarise_aux(data, "Steroid")
+anti_plt <- summarise_aux(data, "Antivirals")
+fatigue_plt <- summarise_aux(data, "Fatigue")
+cathegorical_plots_pt_1 <- ggarrange(gender_plt, steroid_plt, anti_plt, fatigue_plt,
+                                     ncol = 2, nrow = 2)
+
+
+malaise_plt <- summarise_aux(data, "Malaise")
+anorex_plt <- summarise_aux(data, "Anorexia")
+liver_b_plt <- summarise_aux(data, "Liver_Big") + scale_x_discrete("Hígado Agrandado")
+liver_f_plt <- summarise_aux(data, "Liver_Firm") + scale_x_discrete("Hígado Firme")
+cathegorical_plots_pt_2 <- ggarrange(malaise_plt, anorex_plt, liver_b_plt, liver_f_plt,
+                                     ncol = 2, nrow = 2)
 
 # An?lisis inferencial ----
+
+
+
