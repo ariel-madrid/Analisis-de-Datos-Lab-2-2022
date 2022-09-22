@@ -86,6 +86,8 @@ for (cols in colnames(data)) {
 # Estadisticas descriptivas ----
 
 # Para las primeras 10 variables, 9 son categóricas.
+# Se omite la primera columna que es la Clase (muerto o vivo).
+# La columna 2, 'Age', se dejará para después, enfocándonos en las 8 categóricas a continuación.
 # Se hará un recuento de la frecuencia para cada una.
 
 
@@ -108,7 +110,6 @@ fatigue_plt <- summarise_aux(data, "Fatigue")
 cathegorical_plots_pt_1 <- ggarrange(gender_plt, steroid_plt, anti_plt, fatigue_plt,
                                      ncol = 2, nrow = 2)
 
-
 malaise_plt <- summarise_aux(data, "Malaise")
 anorex_plt <- summarise_aux(data, "Anorexia")
 liver_b_plt <- summarise_aux(data, "Liver_Big") + scale_x_discrete("Hígado Agrandado")
@@ -116,6 +117,14 @@ liver_f_plt <- summarise_aux(data, "Liver_Firm") + scale_x_discrete("Hígado Firm
 cathegorical_plots_pt_2 <- ggarrange(malaise_plt, anorex_plt, liver_b_plt, liver_f_plt,
                                      ncol = 2, nrow = 2)
 
+
+# Analizamos la edad.
+# age_hist <- hist(data$Age, labels = TRUE, ylim = c(0, 32), breaks = 25)
+age_hist <- ggplot(data, aes(x = Age, fill = Class, colour = Class)) + 
+  geom_histogram(alpha = 0.5, position = "identity") +
+
+
+plot(age_hist)
 # An?lisis inferencial ----
 
 
