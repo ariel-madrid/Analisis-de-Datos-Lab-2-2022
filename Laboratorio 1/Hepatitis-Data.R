@@ -1,4 +1,4 @@
-#Importar librerias
+#Importar librerías
 library(dplyr)
 library(ggpubr)
 library(ggplot2)
@@ -16,25 +16,25 @@ names(data) <- c('Class', 'Age', 'Sex', 'Steroid', 'Antivirals', 'Fatigue', 'Mal
                  'Spiders', 'Ascites', 'Varices', 'Bilirubin', 'Alk_Phosphate', 'Sgot', 'Albumin', 'Protime', 'Histology')
 
 
-# Obtener columna que posee m?s valores sin documentar
+# Obtener columna que posee más valores sin documentar
 
 missing_values_recount <- data %>% summarise_all(~ sum(. == "?"))
 
-# Obtener qu? paciente posee la mayor cantidad de atributos sin documentar
+# Obtener qué paciente posee la mayor cantidad de atributos sin documentar
 missing_values_per_patient <- rowSums(data == "?")
 missing_values_per_patient <- data.frame(missing_values = missing_values_per_patient) %>% 
                                 mutate(id = seq(nrow(data))) %>%
                                 arrange(desc(missing_values))
 
-#Obtener top 10 pacientes con mas valores NA
+#Obtener top 10 pacientes con más valores NA
 ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
 
 # max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
 
-#Cambiar '?' valores a NA
+# Cambiar '?' valores a NA
 data <- data %>% mutate_all(~na_if(., "?"))
 
-#Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
+# Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
 
 plot_missing_data <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes")
 print(plot_missing_data)
@@ -44,12 +44,12 @@ print(plot_missing_data)
 #Eliminar variable Protime, dado que contiene 43% de valores NA.
 data$Protime <- NULL
 
-#Eliminar top 10 filas con mas valores NA's
+# Eliminar top 10 filas con m+as valores NA's
 data$id <- seq(1:155)
 data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
 data$id <-NULL
-
-#Convertir las columnas a los formatos correctos
+ 
+# Convertir las columnas a los formatos correctos
 data$Class <- as.factor(data$Class)
 data$Age <- as.integer(data$Age)
 data$Sex <- as.factor(data$Sex)
@@ -89,21 +89,18 @@ for (cols in colnames(data)) {
 
 # Estadisticas descriptivas ----
 
-<<<<<<< HEAD
 # Para las primeras 10 variables, 9 son categóricas.
 # Se omite la primera columna que es la Clase (muerto o vivo).
 # La columna 2, 'Age', se dejará para después, enfocándonos en las 8 categóricas a continuación.
 # Se hará un recuento de la frecuencia para cada una.
-=======
+
 # Para las primeras 10 variables, 9 son categ?ricas.
-# Se har? un recuento de la frecuencia para cada una.
->>>>>>> f4c2f50b5afa8f38b3627ec5148d9264a5c3a685
+# Se hará un recuento de la frecuencia para cada una.
 
-
-# Funci?n que entrega un gr?fico de las variables categ?ricas dicot?micas que solo
-# entregan informaci?n de si un s?ntoma est? presente o no.
+# Función que entrega un gráfico de las variables categóricas dicotómicas que solo
+# entregan información de si un síntoma está presente o no.
 # Entrada: datos: dataframe/table, column_name: string
-# Salida: gr?fico de barras
+# Salida: gráfico de barras
 summarise_aux <- function(data, column_name){
   data <- data.frame(x = c("Presente", "No presente"), 
                      total = count(data, get(column_name)) %>% pull())
@@ -118,10 +115,6 @@ anti_plt <- summarise_aux(data, "Antivirals")
 fatigue_plt <- summarise_aux(data, "Fatigue")
 cathegorical_plots_pt_1 <- ggarrange(gender_plt, steroid_plt, anti_plt, fatigue_plt,
                                      ncol = 2, nrow = 2)
-<<<<<<< HEAD
-
-=======
->>>>>>> f4c2f50b5afa8f38b3627ec5148d9264a5c3a685
 malaise_plt <- summarise_aux(data, "Malaise")
 anorex_plt <- summarise_aux(data, "Anorexia")
 liver_b_plt <- summarise_aux(data, "Liver_Big") + scale_x_discrete("Higado Agrandado")
@@ -152,7 +145,7 @@ barplot_histology <- ggplot(data,aes(x=factor(Histology)))+ geom_bar(position="d
 final_barplot_combined <- ggarrange(barplot_spleen_palpable,barplot_spiders,barplot_ascites,barplot_varices,barplot_histology, nrow=2,ncol=4)
 print(final_barplot_combined)
 
-#Obtener matriz de correlacion para observar correlacion de las variables numericas de la base de datos.
+#Obtener matriz de correlacion para observar correlacion de las variables numéricas de la base de datos.
 correlacion<-round(cor(select_if(data, is.numeric)), 1)
 
 corrplot(correlacion, method="number", type="upper")
@@ -161,7 +154,7 @@ corrplot(correlacion, method="number", type="upper")
 bilirubin_albumin_cor <- scatterplot(Bilirubin ~ Albumin,data = data, smooth = FALSE, grid = F, frame = F)
 print(bilirubin_albumin_cor)
 
-#Visualizar distribucion de variables numericas continuas
+#Visualizar distribución de variables numéricas continuas
 
 #Bilirubin distribution
 bilirubin_distribution <- ggplot(data, aes(x=Bilirubin)) + geom_histogram(aes(y=..density..), binwidth=.5, colour="black", fill="white") +
@@ -173,17 +166,17 @@ albumin_distribution <- ggplot(data, aes(x=Albumin)) + geom_histogram(aes(y=..de
   geom_density(alpha=.2, fill="#FFF666") + labs(title="", y = "Densidad") + 
   geom_vline(aes(xintercept=mean(Albumin, na.rm=T)), color="red", linetype="dashed", size=1)
 
-#Combinar graficos
+#Combinar gráficos
 final_plot_distribution <- ggarrange(bilirubin_distribution,albumin_distribution, nrow=1,ncol=2)
 print(final_plot_distribution)
 
-#Grafica de barras segmentadas para Class + Spleen_Palpable
+#Gráfica de barras segmentadas para Class + Spleen_Palpable
 levels(data$Class) <- c("Muerto","Vivo")
 levels(data$Spleen_Palpable) <- c("Yes", "No")
 contingency_table  <- xtabs(~ Class + Spleen_Palpable , data = data)
 contingency_table  <- as.data.frame(contingency_table)
 
-#Se crea el grafico
+#Se crea el gráfico
 segmented_bar_plot <- ggplot(contingency_table, aes(fill = Class , y = Freq , x = Spleen_Palpable))
 segmented_bar_plot <- segmented_bar_plot + geom_bar(position = "stack", stat = "identity")
 segmented_bar_plot <- segmented_bar_plot + labs(y = "Frecuencia") + ggtitle("Barras  apiladas para Class y Spleen Palpable")
@@ -212,10 +205,10 @@ bilirrubin_class <- ggplot(data,aes(x = Class, y = Bilirubin, fill = Class))+
 
 
 
-#Test Lilliefors para determinar si variable Albumin sigue una distribucion normal.
+#Test Lilliefors para determinar si variable Albumin sigue una distribución normal.
 
-#H0: La distribucion es normal
-#Ha: La distribucion no es normal
+#H0: La distribución es normal
+#Ha: La distribución no es normal
 
 lilliefors_albumin <- lillie.test(x = data$Albumin)
 print(lilliefors_albumin)
