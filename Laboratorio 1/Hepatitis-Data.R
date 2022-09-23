@@ -213,3 +213,26 @@ bilirrubin_class <- ggplot(data,aes(x = Class, y = Bilirubin, fill = Class))+
 lilliefors_albumin <- lillie.test(x = data$Albumin)
 print(lilliefors_albumin)
 
+# Analizamos la edad por Clase, ya que el histograma no nos da
+# suficiente información, recurrimos a la inferencia estadística.
+
+# H_0: Las edades para los dos grupos (sobrevivientes o vivos v/s muertos) son iguales,
+#      es decir: mu_1 = mu_2.
+# H_A: Las edades de los grupos son distintas, es decir: mu_1 != mu_2.
+
+# Ajustamos el nivel de significación
+alpha <- 0.05 # 1%
+
+edad_1 <- data %>% filter(Class == "Muerto") %>% select(Age) %>% pull()
+edad_2 <- data %>% filter(Class == "Vivo") %>% select(Age) %>% pull()
+
+normalidad_edad_1 <- shapiro.test(edad_1)
+normalidad_edad_2 <- shapiro.test(edad_2)
+
+cat("shapiro test age: p-value_1_age = ", normalidad_edad_1$p.value, 
+    "p-value_2_age = ", normalidad_edad_2$p.value)
+
+# Del resultado anterior vemos que: p-value_1 =  0.39 p-value_2 =  0.02
+# No podríamos proceder, ya que el p-valor para la edad de los pacientes
+# de la clase "live" es menor al nivel de significación, no cumpliendo
+# la hipótesis del test de Shapiro-Wilk (H_0 = dist. normal).
