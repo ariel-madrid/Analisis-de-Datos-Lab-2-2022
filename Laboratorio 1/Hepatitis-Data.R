@@ -236,6 +236,18 @@ cat("shapiro test age: p-value_1_age = ", normalidad_edad_1$p.value,
 # de la clase "live" es menor al nivel de significación, no cumpliendo
 # la hipótesis del test de Shapiro-Wilk (H_0 = dist. normal).
 
+# Así, vemos que tenemos que utilizar un test no paramétrico,
+# que no toma supuestos de normalidad, algo estudiado en el curso anterior.
+
+age_test <- wilcox.test(x = edad_1,
+            y = edad_2,
+            alternative = "two.sided",
+            mu = 0,
+            conf.int = 1 - alpha,
+            paired = FALSE)
+
+cat("Test de Wilcoxon Mann Whitney para la edad, p-value = ", age_test$p.value)
+
 #Modelo de regresion logistica
 
 #Establecer semilla
