@@ -121,11 +121,22 @@ cathegorical_plots_pt_2 <- ggarrange(malaise_plt, anorex_plt, liver_b_plt, liver
 # Analizamos la edad.
 # age_hist <- hist(data$Age, labels = TRUE, ylim = c(0, 32), breaks = 25)
 age_hist <- ggplot(data, aes(x = Age, fill = Class, colour = Class)) + 
-  geom_histogram(alpha = 0.5, position = "identity") +
-
-
+  geom_histogram(alpha = 0.5, position = "identity", bins = 25)
 plot(age_hist)
-# An?lisis inferencial ----
+
+# Analizar distribución de Class para Bilirubin (bilirubina)
+
+bilirrubin_class <- ggplot(data,aes(x = Class, y = Bilirubin, fill = Class))+
+  geom_boxplot()
+
+# Vemos que pacientes de clase 1 (no sobrevivientes) tuvieron cantidades 
+# más altas de bilirubina cuando padecieron la enfermedad.
+
+
+
+# Análisis inferencial ----
+
+
 
 
 
