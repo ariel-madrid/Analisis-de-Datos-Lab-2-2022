@@ -199,11 +199,7 @@ bilirrubin_class <- ggplot(data,aes(x = Class, y = Bilirubin, fill = Class))+
 # Vemos que pacientes de clase 1 (no sobrevivientes) tuvieron cantidades 
 # más altas de bilirubina cuando padecieron la enfermedad.
 
-
-
 # Análisis inferencial ----
-
-
 
 #Test Lilliefors para determinar si variable Albumin sigue una distribución normal.
 
@@ -223,8 +219,11 @@ print(lilliefors_albumin)
 # Ajustamos el nivel de significación
 alpha <- 0.05 # 1%
 
-edad_1 <- data %>% filter(Class == "Muerto") %>% select(Age) %>% pull()
-edad_2 <- data %>% filter(Class == "Vivo") %>% select(Age) %>% pull()
+edad_1 <- data %>% filter(Class == "Muerto")
+edad_1 <- edad_1$Age
+
+edad_2 <- data %>% filter(Class == "Vivo") 
+edad_2 <- edad_2$Age
 
 normalidad_edad_1 <- shapiro.test(edad_1)
 normalidad_edad_2 <- shapiro.test(edad_2)
@@ -236,3 +235,48 @@ cat("shapiro test age: p-value_1_age = ", normalidad_edad_1$p.value,
 # No podríamos proceder, ya que el p-valor para la edad de los pacientes
 # de la clase "live" es menor al nivel de significación, no cumpliendo
 # la hipótesis del test de Shapiro-Wilk (H_0 = dist. normal).
+
+#Modelo de regresion logistica
+
+#Establecer semilla
+set.seed(666)
+
+#Particionar datos
+sample <- sample(2,nrow(data),replace=T,prob = c(0.8,0.2))
+train <- data[sample==1,]
+test <- data[sample==2,]
+
+#Se crea el modelo completo
+model <- glm(Class~., family = binomial(link = "logit"), data = train)
+print(summary(model))
+
+#Se seleccionan las variables mas significativas.
+optimized_model <- model %>% stepAIC(trace = FALSE)
+print(summary(optimized_model))
+
+# Realizar prediccion con el train set.
+probs_values_train <- predict(optimized_model, train, type = "response")
+probs_train <- ifelse(probs_values_train > 0.5, 1, 0)
+confusion_matrix_train <- table(Predicted = probs_train, Actual = train$Class)
+
+#Error de clasificacion
+error_train <- 1 - sum(diag(confusion_matrix_train))/sum(confusion_matrix_train)
+cat("\nError de clasificacion train set: ",error_train,"\n")
+
+# Realizar prediccion con el test set.
+probs_values_test <- predict(optimized_model, test, type = "response")
+probs_test <- ifelse(probs_values_test > 0.5, 1, 0)
+confusion_matrix_test <- table(Predicted = probs_test, Actual = test$Class)
+
+#Error de clasificacion
+error_test <- 1 - sum(diag(confusion_matrix_test))/sum(confusion_matrix_test)
+cat("\nError de clasificacion test set: ",error_test,"\n")
+
+#Estudiar poder predictivo del modelo.
+prediction <- prediction(probs_values_test, test$Class)
+performance <- performance(prediction, measure = "tpr", x.measure = "fpr")
+plot(performance)
+
+auc <- performance(prediction, measure = "auc")
+auc <- auc@y.values[[1]]
+cat("\n AUC: ",auc,"\n")
