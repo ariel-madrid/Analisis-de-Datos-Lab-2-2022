@@ -18,40 +18,9 @@ data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/he
 names(data) <- c('Class', 'Age', 'Sex', 'Steroid', 'Antivirals', 'Fatigue', 'Malaise', 'Anorexia', 'Liver_Big', 'Liver_Firm', 'Spleen_Palpable',
                  'Spiders', 'Ascites', 'Varices', 'Bilirubin', 'Alk_Phosphate', 'Sgot', 'Albumin', 'Protime', 'Histology')
 
-
-# Obtener columna que posee más valores sin documentar
-
-missing_values_recount <- data %>% summarise_all(~ sum(. == "?"))
-
-# Obtener qué paciente posee la mayor cantidad de atributos sin documentar
-missing_values_per_patient <- rowSums(data == "?")
-missing_values_per_patient <- data.frame(missing_values = missing_values_per_patient) %>% 
-                                mutate(id = seq(nrow(data))) %>%
-                                arrange(desc(missing_values))
-
-# Obtener top 10 pacientes con más valores NA
-ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
-
-# max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
-
 # Cambiar '?' valores a NA
 data <- data %>% mutate_all(~na_if(., "?"))
 
-# Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
-
-plot_missing_data <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes")
-print(plot_missing_data)
-
-# Limpiar los datos
-
-#Eliminar variable Protime, dado que contiene 43% de valores NA.
-data$Protime <- NULL
-
-# Eliminar top 10 filas con m+as valores NA's
-data$id <- seq(1:155)
-data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
-data$id <-NULL
- 
 # Convertir las columnas a los formatos correctos
 data$Class <- as.factor(data$Class)
 data$Age <- as.integer(data$Age)
@@ -72,6 +41,38 @@ data$Alk_Phosphate <- as.integer(data$Alk_Phosphate)
 data$Sgot <- as.numeric(data$Sgot)
 data$Albumin <- as.numeric(data$Albumin)
 data$Histology <- as.factor(data$Histology)
+
+# Obtener columna que posee más valores sin documentar
+
+missing_values_recount <- data %>% summarise_all(~ sum(. == "?"))
+
+# Obtener qué paciente posee la mayor cantidad de atributos sin documentar
+missing_values_per_patient <- rowSums(data == "?")
+missing_values_per_patient <- data.frame(missing_values = missing_values_per_patient) %>% 
+                                mutate(id = seq(nrow(data))) %>%
+                                arrange(desc(missing_values))
+
+# Obtener top 10 pacientes con más valores NA
+ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
+
+# max_missing_values_patient <- which(missing_values_per_patient == max(missing_values_per_patient))
+
+
+
+# Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
+
+plot_missing_data <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes")
+print(plot_missing_data)
+
+# Limpiar los datos
+
+#Eliminar variable Protime, dado que contiene 43% de valores NA.
+data$Protime <- NULL
+
+# Eliminar top 10 filas con m+as valores NA's
+data$id <- seq(1:155)
+data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
+data$id <-NULL
 
 # Obtener la moda de una determinada columna
 getmode <- function(v){
