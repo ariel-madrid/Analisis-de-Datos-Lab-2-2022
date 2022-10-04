@@ -1,28 +1,31 @@
+# Cargar librerias ----
 library(tidyverse)
 library(cluster)
 library(Rtsne) 
 library(ggplot2)
 library(fpc)
 library(factoextra)
+library(VIM)
+library(ggplot2)
+library(naniar)
 
-# Leer data set de Hepatitis.
+
+# Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
 # Asignar nombres mas representativos a las variables de acuerdo al archivo hepatitis.name.
 names(data) <- c('Class', 'Age', 'Sex', 'Steroid', 'Antivirals', 'Fatigue', 'Malaise', 'Anorexia', 'Liver_Big', 'Liver_Firm', 'Spleen_Palpable',
                  'Spiders', 'Ascites', 'Varices', 'Bilirubin', 'Alk_Phosphate', 'Sgot', 'Albumin', 'Protime', 'Histology')
 
+#Mostrar primeros valores del dataset
+print(str(data))
+
 #Convertir '?' a NAs
 data <- data %>% mutate_all(~na_if(., "?"))
 
-#Eliminar la clase
-data$Class <- NULL
 
-#Identificar tipos de datos de las variables
-
-print(str(data))
-
-# Convertir las columnas a los formatos correctos
+# Convertir las columnas a los formatos correctos ----
+data$Class <- as.factor(data$Class)
 data$Age <- as.integer(data$Age)
 data$Sex <- as.factor(data$Sex)
 data$Steroid <- as.factor(data$Steroid)
@@ -40,25 +43,23 @@ data$Bilirubin <- as.numeric(data$Bilirubin)
 data$Alk_Phosphate <- as.integer(data$Alk_Phosphate)
 data$Sgot <- as.numeric(data$Sgot)
 data$Albumin <- as.numeric(data$Albumin)
+data$Protime <- as.integer(data$Protime)
 data$Histology <- as.factor(data$Histology)
 
-#Normalizar
+#Visualizar variables en formatos adecuados.
+print(str(data))
 
-#Encontrar outliers
 
-#Tratar valores perdidos.
+# Tratar valores perdidos. ----
 
-#Tratamiento de valores perdidos
-
-# Obtener columna que posee más valores sin documentar
-
-missing_values_recount <- data %>% summarise_all(~ sum(. == "?"))
+# Visualizar datos faltantes en el data set - Muestra porcentajes de missing data por variable.
+plot_missing_data <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes")
+print(plot_missing_data)
 
 # Obtener qué paciente posee la mayor cantidad de atributos sin documentar
-missing_values_per_patient <- rowSums(data == "?")
+missing_values_per_patient <- rowSums(is.na(data))
 missing_values_per_patient <- data.frame(missing_values = missing_values_per_patient) %>% 
-  mutate(id = seq(nrow(data))) %>%
-  arrange(desc(missing_values))
+                              mutate(id = seq(nrow(data))) %>%arrange(desc(missing_values))
 
 # Obtener top 10 pacientes con más valores NA
 ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
@@ -70,6 +71,8 @@ data$Protime <- NULL
 data$id <- seq(1:155)
 data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
 data$id <-NULL
+
+# Imputacion ----
 
 # Obtener la moda de una determinada columna
 getmode <- function(v){
@@ -87,6 +90,21 @@ for (cols in colnames(data)) {
     data<-data%>%mutate(!!cols := replace(!!rlang::sym(cols), is.na(!!rlang::sym(cols)), getmode(!!rlang::sym(cols))))
   }
 }
+
+# Visualizar nuevamente porcentaje de valores perdidos por variable.
+plot_missing_data_after_imputation <- gg_miss_var(data, show_pct = TRUE) + labs(y = "Porcentaje de valores faltantes despues de imputación.")
+print(plot_missing_data_after_imputation)
+
+# Outliers ----
+
+# Visualizar outliers en variables numericas
+boxplot_age <- boxplot(data$Age, horizontal = TRUE, main = "Boxplot variable Age")
+boxplot_bilirubin <- boxplot(data$Bilirubin, horizontal = TRUE, main = "Boxplot variable Bilirubin")
+boxplot_alk_phosphate <- boxplot(data$Alk_Phosphate, horizontal = TRUE, main = "Boxplot variable Alk Phosphate")
+boxplot_sgot <- boxplot(data$Sgot, horizontal = TRUE, main = "Boxplot variable Sgot")
+boxplot_albumin <- boxplot(data$Albumin, horizontal = TRUE, main = "Boxplot variable Albumin")
+
+# Obtencion del cluster ----
 
 #Distancia de Gower
 gower_dist <- daisy(data,metric = "gower")
