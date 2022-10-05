@@ -8,7 +8,8 @@ library(factoextra)
 library(VIM)
 library(ggplot2)
 library(naniar)
-
+library(ggpubr)
+library(NbClust)
 
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
@@ -98,39 +99,58 @@ print(plot_missing_data_after_imputation)
 # Outliers ----
 
 # Visualizar outliers en variables numericas
-boxplot_age <- boxplot(data$Age, horizontal = TRUE, main = "Boxplot variable Age")
-boxplot_bilirubin <- boxplot(data$Bilirubin, horizontal = TRUE, main = "Boxplot variable Bilirubin")
-boxplot_alk_phosphate <- boxplot(data$Alk_Phosphate, horizontal = TRUE, main = "Boxplot variable Alk Phosphate")
-boxplot_sgot <- boxplot(data$Sgot, horizontal = TRUE, main = "Boxplot variable Sgot")
-boxplot_albumin <- boxplot(data$Albumin, horizontal = TRUE, main = "Boxplot variable Albumin")
+boxplot_age <- ggboxplot(data$Age, horizontal = TRUE, main = "Boxplot variable Age")
+boxplot_bilirubin <- ggboxplot(data$Bilirubin, horizontal = TRUE, main = "Boxplot variable Bilirubin")
+boxplot_alk_phosphate <- ggboxplot(data$Alk_Phosphate, horizontal = TRUE, main = "Boxplot variable Alk Phosphate")
+boxplot_sgot <- ggboxplot(data$Sgot, horizontal = TRUE, main = "Boxplot variable Sgot")
+boxplot_albumin <- ggboxplot(data$Albumin, horizontal = TRUE, main = "Boxplot variable Albumin")
 
+boxplots <- ggarrange(boxplot_age,boxplot_bilirubin,boxplot_alk_phosphate,boxplot_sgot,boxplot_albumin,ncol=3,nrow=2)
+print(boxplots)
 # Obtencion del cluster ----
+
+#Eliminar la clase del dataset
+data$Class <- NULL
 
 #Distancia de Gower
 gower_dist <- daisy(data,metric = "gower")
 gower_mat <- as.matrix(gower_dist)
 
-#Numero optimo de cluster
-sil_width <- c(NA)
-for(i in 2:8){  
-  pam_fit <- pam(gower_dist, diss = TRUE, k = i)  
-  sil_width[i] <- pam_fit$silinfo$avg.width  
-}
-plot(1:8, sil_width,
-     xlab = "Number of clusters",
-     ylab = "Silhouette Width")
-lines(1:8, sil_width)
+#Numero optimo de cluster - Metodo de la silueta
+fviz_nbclust(gower_mat, pam, method = "silhouette") +
+  labs(subtitle = "Método de la silueta")
 
-#Dos clusters parecen ser la mejor opcion.
+#Numero optimo de cluster - Metodo del codo
+fviz_nbclust(gower_mat, pam, method = "wss") +
+  geom_vline(xintercept = 4, linetype = 2) +
+  labs(subtitle = "Método del codo")
 
-#PAM Clustering 
-k <- 2
-pam_fit <- pam(gower_dist, diss = TRUE, k)
-pam_results <- data %>%mutate(cluster = pam_fit$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
-pam_results$the_summary
+#Numero optimo de cluster - Metodo del gap
+fviz_nbclust(gower_mat, pam,
+             nstart = 25,
+             method = "gap_stat",
+             nboot = 500
+) + labs(subtitle = "Gap statistic method")
+
+#PAM Clustering con k=4
+elbow_method_suggested_k <- 4
+pam_fit_four_cluster <- pam(gower_dist, diss = TRUE, elbow_method_suggested_k)
+pam_results_four_cluster <- data %>%mutate(cluster = pam_fit_four_cluster$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_four_cluster$the_summary
+
+#PAM Clustering con k=2
+silhouette_method_suggested_k <- 4
+pam_fit_two_cluster <- pam(gower_dist, diss = TRUE, silhouette_method_suggested_k)
+pam_results_two_cluster <- data %>%mutate(cluster = pam_fit_two_cluster$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_two_cluster$the_summary
+
+#PAM Clustering con k=9
+gap_method_suggested_k <- 9
+pam_fit_nine_cluster <- pam(gower_dist, diss = TRUE, gap_method_suggested_k)
+pam_results_nine_cluster <- data %>%mutate(cluster = pam_fit_nine_cluster$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_nine_cluster$the_summary
 
 #Visualizar cluster
-fviz_cluster(pam_results,data=data,ellipse.type="norm")
 
 
 
