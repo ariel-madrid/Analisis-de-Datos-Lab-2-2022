@@ -139,7 +139,7 @@ pam_results_four_cluster <- data %>%mutate(cluster = pam_fit_four_cluster$cluste
 pam_results_four_cluster$the_summary
 
 #PAM Clustering con k=2
-silhouette_method_suggested_k <- 4
+silhouette_method_suggested_k <- 2
 pam_fit_two_cluster <- pam(gower_dist, diss = TRUE, silhouette_method_suggested_k)
 pam_results_two_cluster <- data %>%mutate(cluster = pam_fit_two_cluster$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_two_cluster$the_summary
@@ -152,5 +152,13 @@ pam_results_nine_cluster$the_summary
 
 #Visualizar cluster
 
+#K=4
+clusplot(gower_mat, pam_fit_four_cluster$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+
+#K=2
+clusplot(gower_mat, pam_fit_two_cluster$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+
+#K=9
+clusplot(gower_mat, pam_fit_nine_cluster$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
 
 
