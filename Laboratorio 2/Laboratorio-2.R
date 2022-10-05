@@ -10,7 +10,7 @@ library(ggplot2)
 library(naniar)
 library(ggpubr)
 library(NbClust)
-
+library(kmed)
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
@@ -161,4 +161,15 @@ clusplot(gower_mat, pam_fit_two_cluster$cluster, color=TRUE, shade=TRUE, labels=
 #K=9
 clusplot(gower_mat, pam_fit_nine_cluster$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
 
+data$clus <- as.factor(pam_fit_two_cluster$clustering)
+data$clus <- factor(data$clus)
 
+data_long <- gather(data, "Variable", "Valor", 1:18, factor_key=TRUE)
+ggplot(data_long, aes(as.factor(x = Variable), y = Valor,group=clus, colour = clus)) + 
+  stat_summary(fun = mean, geom="pointrange", size = 1, aes(shape = clus))+
+  stat_summary(geom="line")
+
+
+#Dendograma
+dend <- hcut(gower_mat,k=4,stand = TRUE, method="median")
+fviz_dend(dend,rect=TRUE, cex=0.5,k_colors = "simpsons")
