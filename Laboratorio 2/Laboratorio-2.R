@@ -11,6 +11,7 @@ library(naniar)
 library(ggpubr)
 library(NbClust)
 library(kmed)
+library(Hmisc)
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
@@ -68,7 +69,7 @@ ids_patient_top_ten_missing_Values <- missing_values_per_patient$id[1:10]
 #Eliminar variable Protime, dado que contiene 43% de valores NA.
 data$Protime <- NULL
 
-# Eliminar top 10 filas con m+as valores NA's
+# Eliminar top 10 filas con más valores NA's
 data$id <- seq(1:155)
 data <- data[!(data$id %in% ids_patient_top_ten_missing_Values), ]
 data$id <-NULL
@@ -110,6 +111,7 @@ print(boxplots)
 # Obtencion del cluster ----
 
 #Eliminar la clase del dataset
+attr_class <- data$Class
 data$Class <- NULL
 
 #Distancia de Gower
@@ -126,11 +128,11 @@ fviz_nbclust(gower_mat, pam, method = "wss") +
   labs(subtitle = "Método del codo")
 
 #Numero optimo de cluster - Metodo del gap
-fviz_nbclust(gower_mat, pam,
-             nstart = 25,
-             method = "gap_stat",
-             nboot = 500
-) + labs(subtitle = "Gap statistic method")
+# fviz_nbclust(gower_mat, pam,
+#              nstart = 25,
+#              method = "gap_stat",
+#              nboot = 500
+# ) + labs(subtitle = "Gap statistic method")
 
 #PAM Clustering con k=4
 elbow_method_suggested_k <- 4
@@ -161,15 +163,31 @@ clusplot(gower_mat, pam_fit_two_cluster$cluster, color=TRUE, shade=TRUE, labels=
 #K=9
 clusplot(gower_mat, pam_fit_nine_cluster$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
 
-data$clus <- as.factor(pam_fit_two_cluster$clustering)
-data$clus <- factor(data$clus)
 
-data_long <- gather(data, "Variable", "Valor", 1:18, factor_key=TRUE)
-ggplot(data_long, aes(as.factor(x = Variable), y = Valor,group=clus, colour = clus)) + 
-  stat_summary(fun = mean, geom="pointrange", size = 1, aes(shape = clus))+
-  stat_summary(geom="line")
+# data$clus <- as.factor(pam_fit_two_cluster$clustering)
+# data$clus <- factor(data$clus)
+# 
+# data_long <- gather(data, "Variable", "Valor", 1:18, factor_key=TRUE)
+# ggplot(data_long, aes(as.factor(x = Variable), y = Valor,group=clus, colour = clus)) + 
+#   stat_summary(fun = mean, geom="pointrange", size = 1, aes(shape = clus))+
+#   stat_summary(geom="line")
 
 
 #Dendograma
 dend <- hcut(gower_mat,k=4,stand = TRUE, method="median")
 fviz_dend(dend,rect=TRUE, cex=0.5,k_colors = "simpsons")
+
+
+# Evaluamos cada clúster obtenido
+# k = 2
+
+cluster_2_df <- data.frame(data, 
+                   class = attr_class,                    
+                   clust_k_2 = as.factor(pam_fit_two_cluster$clustering))
+
+cluster_2_group_1 <- cluster_2_df %>% filter(clust_k_2 == 1)
+cluster_2_group_2 <- cluster_2_df %>% filter(clust_k_2 == 2)
+
+print(pam_fit_two_cluster$clusinfo)
+
+
