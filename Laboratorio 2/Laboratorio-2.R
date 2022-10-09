@@ -11,6 +11,7 @@ library(naniar)
 library(ggpubr)
 library(NbClust)
 library(kmed)
+library(RColorBrewer)
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 data_respaldo <- data
@@ -187,31 +188,6 @@ print(gap)
 
 #Crear clusters ----
 
-#K=4 ----
-
-#PAM Clustering con k=4 y matriz de distancia gower
-elbow_method_suggested_k <- 4
-pam_fit_four_cluster_gower <- pam(gower_dist, diss = TRUE, elbow_method_suggested_k)
-pam_results_four_cluster_gower <- data %>%mutate(cluster = pam_fit_four_cluster_gower$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
-pam_results_four_cluster_gower$the_summary
-
-clusplot(gower_mat, pam_fit_four_cluster_gower$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
-
-#PAM Clustering con k=4 y matriz de distancia podani
-pam_fit_four_cluster_podani <- pam(podani_dist, diss = TRUE, elbow_method_suggested_k)
-pam_results_four_cluster_podani <- data %>%mutate(cluster = pam_fit_four_cluster_podani$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
-pam_results_four_cluster_podani$the_summary
-
-clusplot(podani_mat, pam_fit_four_cluster_podani$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
-
-#PAM Clustering con k=4 y matriz de distancia harikumar
-pam_fit_four_cluster_harikumar <- pam(harikumar_dist, diss = TRUE, elbow_method_suggested_k)
-pam_results_four_cluster_harikumar <- data %>%mutate(cluster = pam_fit_four_cluster_harikumar$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
-pam_results_four_cluster_harikumar$the_summary
-
-clusplot(harikumar_mat, pam_fit_four_cluster_harikumar$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
-
-
 #K=2 ----
 
 #PAM Clustering con k=2 y matriz de distancia gower
@@ -220,21 +196,45 @@ pam_fit_two_cluster_gower <- pam(gower_dist, diss = TRUE, silhouette_method_sugg
 pam_results_two_cluster_gower <- data %>%mutate(cluster = pam_fit_two_cluster_gower$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_two_cluster_gower$the_summary
 
-clusplot(gower_mat, pam_fit_two_cluster_gower$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(gower_mat, pam_fit_two_cluster_gower$cluster, color=TRUE, labels=0, lines=0)
 
 #PAM Clustering con k=2 y matriz de distancia podani
 pam_fit_two_cluster_podani <- pam(podani_dist, diss = TRUE, silhouette_method_suggested_k)
 pam_results_two_cluster_podani <- data %>%mutate(cluster = pam_fit_two_cluster_podani$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_two_cluster_podani$the_summary
 
-clusplot(podani_mat, pam_fit_two_cluster_podani$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(podani_mat, pam_fit_two_cluster_podani$cluster, color=TRUE, labels=0, lines=0)
 
 #PAM Clustering con k=2 y matriz de distancia harikumar
 pam_fit_two_cluster_harikumar <- pam(harikumar_dist, diss = TRUE, silhouette_method_suggested_k)
 pam_results_two_cluster_harikumar <- data %>%mutate(cluster = pam_fit_two_cluster_harikumar$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_two_cluster_harikumar$the_summary
 
-clusplot(harikumar_mat, pam_fit_two_cluster_harikumar$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(harikumar_mat, pam_fit_two_cluster_harikumar$cluster, color=TRUE, labels=0, lines=0)
+
+#K=4 ----
+
+#PAM Clustering con k=4 y matriz de distancia gower
+elbow_method_suggested_k <- 4
+pam_fit_four_cluster_gower <- pam(gower_dist, diss = TRUE, elbow_method_suggested_k)
+pam_results_four_cluster_gower <- data %>%mutate(cluster = pam_fit_four_cluster_gower$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_four_cluster_gower$the_summary
+
+clusplot(gower_mat, pam_fit_four_cluster_gower$cluster, color=TRUE, labels=0, lines=0)
+
+#PAM Clustering con k=4 y matriz de distancia podani
+pam_fit_four_cluster_podani <- pam(podani_dist, diss = TRUE, elbow_method_suggested_k)
+pam_results_four_cluster_podani <- data %>%mutate(cluster = pam_fit_four_cluster_podani$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_four_cluster_podani$the_summary
+
+clusplot(podani_mat, pam_fit_four_cluster_podani$cluster, color=TRUE, labels=0, lines=0)
+
+#PAM Clustering con k=4 y matriz de distancia harikumar
+pam_fit_four_cluster_harikumar <- pam(harikumar_dist, diss = TRUE, elbow_method_suggested_k)
+pam_results_four_cluster_harikumar <- data %>%mutate(cluster = pam_fit_four_cluster_harikumar$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
+pam_results_four_cluster_harikumar$the_summary
+
+clusplot(harikumar_mat, pam_fit_four_cluster_harikumar$cluster, color=TRUE, labels=0, lines=0)
 
 #K=9 ----
 
@@ -244,47 +244,235 @@ pam_fit_nine_cluster_gower <- pam(gower_dist, diss = TRUE, gap_method_suggested_
 pam_results_nine_cluster_gower <- data %>%mutate(cluster = pam_fit_nine_cluster_gower$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_nine_cluster_gower$the_summary
 
-clusplot(gower_mat, pam_fit_nine_cluster_gower$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(gower_mat, pam_fit_nine_cluster_gower$cluster, color=TRUE, labels=0, lines=0)
 
 #PAM Clustering con k=9 y matriz de distancia podani
 pam_fit_nine_cluster_podani <- pam(podani_dist, diss = TRUE, gap_method_suggested_k)
 pam_results_nine_cluster_podani <- data %>%mutate(cluster = pam_fit_nine_cluster_podani$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_nine_cluster_podani$the_summary
 
-clusplot(podani_mat, pam_fit_nine_cluster_podani$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(podani_mat, pam_fit_nine_cluster_podani$cluster, color=TRUE, labels=0, lines=0)
 
 #PAM Clustering con k=1 y matriz de distancia harikumar
 pam_fit_nine_cluster_harikumar <- pam(harikumar_dist, diss = TRUE, 1)
 pam_results_nine_cluster_harikumar <- data %>%mutate(cluster = pam_fit_nine_cluster_harikumar$clustering) %>%group_by(cluster) %>%do(the_summary = summary(.))
 pam_results_nine_cluster_harikumar$the_summary
 
-clusplot(harikumar_mat, pam_fit_nine_cluster_harikumar$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+clusplot(harikumar_mat, pam_fit_nine_cluster_harikumar$cluster, color=TRUE, labels=0, lines=0)
 
 #Analisis ----
-#data$clus <- as.factor(pam_fit_two_cluster$clustering)
-#data$clus <- factor(data$clus)
-
-#data_long <- gather(data, "Variable", "Valor", 1:18, factor_key=TRUE)
-#ggplot(data_long, aes(as.factor(x = Variable), y = Valor,group=clus, colour = clus)) + 
-#  stat_summary(fun = mean, geom="pointrange", size = 1, aes(shape = clus))+
-#  stat_summary(geom="line")
-
 
 #Dendograma
-#dend <- hcut(gower_mat,k=4,stand = TRUE, method="median")
-#fviz_dend(dend,rect=TRUE, cex=0.5,k_colors = "simpsons")
+dend <- hcut(harikumar_mat,k=2,stand = TRUE, method="median")
+fviz_dend(dend,rect=TRUE, cex=0.5,k_colors = "RdGy")
 
+data$clus <- as.factor(pam_fit_two_cluster_harikumar$clustering)
+data$clus <- factor(data$clus)
 
-# Evaluamos cada clúster obtenido
-# k = 2
+#Registros dentro del cluster 1
+group_one <- data%>%filter(clus==1)
 
-#cluster_2_df <- data.frame(data, 
-#                   class = attr_class,                    
-#                   clust_k_2 = as.factor(pam_fit_two_cluster$clustering))
+#Registros dentro del cluster 2
+group_two <- data%>%filter(clus==2)
 
-#cluster_2_group_1 <- cluster_2_df %>% filter(clust_k_2 == 1)
-#cluster_2_group_2 <- cluster_2_df %>% filter(clust_k_2 == 2)
+#Barplot variable Sex por grupo del cluster
+sex_group_one <-ggplot(group_one, aes(x=Sex, fill=Sex )) + 
+                geom_bar( ) +
+                scale_fill_hue(c = 40) +
+                theme(legend.position="none") + ggtitle("Grupo 1")
 
-#print(pam_fit_two_cluster$clusinfo)
+sex_group_two <-ggplot(group_two, aes(x=Sex, fill=Sex )) + 
+                geom_bar( ) +
+                scale_fill_hue(c = 40) +
+                theme(legend.position="none") + ggtitle("Grupo 2")
+
+sex_cluster <- ggarrange(sex_group_one,sex_group_two,ncol=2,nrow=1)
+sex_cluster
+
+#Barplot variable Steroid por grupo del cluster
+steroid_group_one <-ggplot(group_one, aes(x=Steroid, fill=Steroid )) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")+ggtitle("Grupo 1")
+
+steroid_group_two <-ggplot(group_two, aes(x=Steroid, fill=Steroid)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")+ggtitle("Grupo 2")
+
+steroid_cluster <- ggarrange(steroid_group_one,steroid_group_two,ncol=2,nrow=1)
+steroid_cluster
+
+steroid_sex <- ggarrange(sex_cluster,steroid_cluster, ncol = 1, nrow = 2)
+steroid_sex
+
+#Barplot variable Antivirals por grupo del cluster
+antivirals_group_one <-ggplot(group_one, aes(x=Antivirals, fill=Antivirals)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+antivirals_group_two <-ggplot(group_two, aes(x=Antivirals, fill=Antivirals)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+antivirals_cluster <- ggarrange(antivirals_group_one,antivirals_group_two,ncol=2,nrow=1)
+antivirals_cluster
+
+#Barplot variable Fatigue por grupo del cluster
+fatigue_group_one <-ggplot(group_one, aes(x=Fatigue, fill=Fatigue)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+fatigue_group_two <-ggplot(group_two, aes(x=Fatigue, fill=Fatigue)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+fatigue_cluster <- ggarrange(fatigue_group_one,fatigue_group_two,ncol=2,nrow=1)
+fatigue_cluster
+
+antivirals_fatigue <- ggarrange(antivirals_cluster,fatigue_cluster, ncol = 1, nrow = 2)
+antivirals_fatigue
+
+#Barplot variable Malaise por grupo del cluster
+malaise_group_one <-ggplot(group_one, aes(x=Malaise, fill=Malaise)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+malaise_group_two <-ggplot(group_two, aes(x=Malaise, fill=Malaise)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+malaise_cluster <- ggarrange(malaise_group_one,malaise_group_two,ncol=2,nrow=1)
+malaise_cluster
+
+#Barplot variable Anorexia por grupo del cluster
+anorexia_group_one <-ggplot(group_one, aes(x=Anorexia, fill=Anorexia)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+anorexia_group_two <-ggplot(group_two, aes(x=Anorexia, fill=Anorexia)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+anorexia_cluster <- ggarrange(anorexia_group_one,anorexia_group_two,ncol=2,nrow=1)
+anorexia_cluster
+
+malaise_anorexia <- ggarrange(malaise_cluster,anorexia_cluster, ncol = 1, nrow = 2)
+malaise_anorexia
+
+#Barplot variable Liver big por grupo del cluster
+liverbig_group_one <-ggplot(group_one, aes(x=Liver_Big, fill=Liver_Big)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+liverbig_group_two <-ggplot(group_two, aes(x=Liver_Big, fill=Liver_Big)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+liverbig_cluster <- ggarrange(liverbig_group_one,liverbig_group_two,ncol=2,nrow=1)
+liverbig_cluster
+
+#Barplot variable Liver firm por grupo del cluster
+liverfirm_group_one <-ggplot(group_one, aes(x=Liver_Firm, fill=Liver_Firm)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+liverfirm_group_two <-ggplot(group_two, aes(x=Liver_Firm, fill=Liver_Firm)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+liverfirm_cluster <- ggarrange(liverfirm_group_one,liverfirm_group_two,ncol=2,nrow=1)
+liverfirm_cluster
+
+liverbig_liverfirm <- ggarrange(liverbig_cluster,liverfirm_cluster, ncol = 1, nrow = 2)
+liverbig_liverfirm
+
+#Barplot variable Spleen palpable por grupo del cluster
+spleen_group_one <-ggplot(group_one, aes(x=Spleen_Palpable, fill=Spleen_Palpable)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+spleen_group_two <-ggplot(group_two, aes(x=Spleen_Palpable, fill=Spleen_Palpable)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+spleen_cluster <- ggarrange(spleen_group_one,spleen_group_two,ncol=2,nrow=1)
+spleen_cluster
+
+#Barplot variable Spiders por grupo del cluster
+spiders_group_one <-ggplot(group_one, aes(x=Spiders, fill=Spiders)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+spiders_group_two <-ggplot(group_two, aes(x=Spiders, fill=Spiders)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+spiders_cluster <- ggarrange(spiders_group_one,spiders_group_two,ncol=2,nrow=1)
+spiders_cluster
+
+spleen_spiders <- ggarrange(spleen_cluster,spiders_cluster, ncol = 1, nrow = 2)
+spleen_spiders
+
+#Barplot variable Ascites por grupo del cluster
+ascites_group_one <-ggplot(group_one, aes(x=Ascites, fill=Ascites)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+ascites_group_two <-ggplot(group_two, aes(x=Ascites, fill=Ascites)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+ascites_cluster <- ggarrange(ascites_group_one,ascites_group_two,ncol=2,nrow=1)
+ascites_cluster
+
+#Barplot variable Varices por grupo del cluster
+varices_group_one <-ggplot(group_one, aes(x=Varices, fill=Varices)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+varices_group_two <-ggplot(group_two, aes(x=Varices, fill=Varices)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+varices_cluster <- ggarrange(varices_group_one,varices_group_two,ncol=2,nrow=1)
+varices_cluster
+
+ascites_varices <- ggarrange(ascites_cluster,varices_cluster, ncol = 1, nrow = 2)
+ascites_varices
+
+#Barplot variable Histology por grupo del cluster
+histology_group_one <-ggplot(group_one, aes(x=Histology, fill=Histology)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none")+ ggtitle("Grupo 1")
+
+histology_group_two <-ggplot(group_two, aes(x=Histology, fill=Histology)) + 
+  geom_bar( ) +
+  scale_fill_hue(c = 40) +
+  theme(legend.position="none") + ggtitle("Grupo 2")
+
+histology_cluster <- ggarrange(histology_group_one,histology_group_two,ncol=2,nrow=1)
+histology_cluster
 
 
