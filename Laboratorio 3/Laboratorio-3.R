@@ -2,8 +2,8 @@
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
-library(arules)
-
+library(arulesViz)
+library(dplyr)
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
@@ -68,18 +68,18 @@ data$Histology <- droplevels(data$Histology)
 
 levels(data$Class) <- c("Muerto", "Vivo")
 levels(data$Sex) <- c("Hombre", "Mujer")
-levels(data$Steroid) <- c("Yes_Steroid", "No_Steroid")
-levels(data$Antivirals) <- c("Yes_Antivirals", "No_Antivirals")
-levels(data$Fatigue) <- c("Yes_Fatigue", "No_Fatigue")
-levels(data$Malaise) <- c("Yes_Malaise", "No_Malaise")
-levels(data$Anorexia) <- c("Yes_Anorexia", "No_Anorexia")
-levels(data$Liver_Big) <- c("Yes_Liver_Big", "No_Liver_Big")
-levels(data$Liver_Firm) <- c("Yes_Liver_Firm", "No_Liver_Firm")
-levels(data$Spleen_Palpable) <- c("Yes_Spleen_Palpable", "No_Spleen_Palpable")
-levels(data$Spiders) <- c("Yes_Spiders", "No_Spiders")
-levels(data$Ascites) <- c("Yes_Ascites", "No_Ascites")
-levels(data$Varices) <- c("Yes_Varices", "No_Varices")
-levels(data$Histology) <- c("Yes_Histology", "No_Histology")
+levels(data$Steroid) <- c("Yes Steroid", "No Steroid")
+levels(data$Antivirals) <- c("Yes Antivirals", "No Antivirals")
+levels(data$Fatigue) <- c("YesFatigue", "No Fatigue")
+levels(data$Malaise) <- c("Yes Malaise", "No Malaise")
+levels(data$Anorexia) <- c("Yes Anorexia", "No Anorexia")
+levels(data$Liver_Big) <- c("Yes Liver Big", "No Liver Big")
+levels(data$Liver_Firm) <- c("Yes Liver Firm", "No Liver Firm")
+levels(data$Spleen_Palpable) <- c("Yes Spleen Palpable", "No Spleen Palpable")
+levels(data$Spiders) <- c("Yes Spiders", "No Spiders")
+levels(data$Ascites) <- c("Yes Ascites", "No Ascites")
+levels(data$Varices) <- c("Yes Varices", "No Varices")
+levels(data$Histology) <- c("Yes Histology", "No Histology")
 
 # Pre procesamiento ----
 # Obtener qué paciente posee la mayor cantidad de atributos sin documentar
@@ -129,24 +129,66 @@ data.rules$Age[data.rules$Age == 65] <- "Tercera edad"
 data.rules$Age[data.rules$Age == 69] <- "Tercera edad"
 data.rules$Age[data.rules$Age == 72] <- "Tercera edad"
 
+data.rules$Age <- as.factor(data.rules$Age)
+
 #Discretizar bilirubin
+data.rules$Bilirubin[data$Bilirubin<0.1] <- "Bilirubin baja"
 data.rules$Bilirubin[data$Bilirubin>=0.1 & data$Bilirubin<=1.2] <- "Bilirubin normal"
 data.rules$Bilirubin[data$Bilirubin>1.2 & data$Bilirubin<=Inf] <- "Bilirubin alta"
 
+data.rules$Bilirubin <- as.factor(data.rules$Bilirubin)
+
 #Discretizar Alk Phosphate
+data.rules$Alk_Phosphate[data$Alk_Phosphate<30] <- "Alk Phosphate baja"
 data.rules$Alk_Phosphate[data$Alk_Phosphate>=30 & data$Alk_Phosphate<=120] <- "Alk Phosphate normal"
 data.rules$Alk_Phosphate[data$Alk_Phosphate>120 & data$Alk_Phosphate<=Inf] <- "Alk Phosphate alta"
 
+data.rules$Alk_Phosphate <- as.factor(data.rules$Alk_Phosphate)
+
 #Discretizar Sgot
+data.rules$Sgot[data$Sgot<8] <- "Sgot baja"
 data.rules$Sgot[data$Sgot>=8 & data$Sgot<=45] <- "Sgot normal"
-data.rules$Sgot[data$Sgot>45 & data$Sgot<=Inf] <- "Sgot muy alta"
+data.rules$Sgot[data$Sgot>45 & data$Sgot<=Inf] <- "Sgot alta"
+
+data.rules$Sgot <- as.factor(data.rules$Sgot)
 
 #Discretizar Albumin
 data.rules$Albumin[data.rules$Albumin<3.4] <- "Albumin baja"
 data.rules$Albumin[data.rules$Albumin>=3.4 & data.rules$Albumin<=5.4] <- "Albumin normal"
 data.rules$Albumin[data.rules$Albumin==6.4] <- "Albumin alta"
 
+data.rules$Albumin <- as.factor(data.rules$Albumin)
+
+# Informacion sobre la clase
+labs <- c("Muerto","Vivo")
+porcentaje <- c(19.3,80.6)
+
+pie <- data.frame(labs,porcentaje)
+
+ggplot(pie,aes(x="",y=porcentaje, fill=labs))+
+        geom_bar(stat = "identity", color="white")+
+        geom_text(aes(label=porcentaje),position=position_stack(vjust=0.5),color="white",size=6)+
+        coord_polar(theta = "y")+
+        scale_fill_manual(values=c("salmon","steelblue"))+
+        theme_void()+
+        labs(title="Proporcion de cada clase")
+
 # Obtener reglas de asociacion ----
 
+#rules <- apriori(data=data.rules,parameter = list(support=0.6,minlen=2,maxlen=6,target="rules"))
+
+#inspect(sort(x=rules,decreasing = TRUE,by="confidence"))
 
 
+# Sin embargo, importan las reglas que contemplen a la clase en el consecuente
+rules_muerto <- apriori(data=data.rules,
+                 parameter = list(support=0.08,confidence=0.8,minlen=2,maxlen=6,target="rules"),
+                 appearance = list(rhs=c("Class=Muerto")))
+
+inspect(sort(x=rules_muerto,decreasing = TRUE,by="confidence"))
+
+rules_vivo <- apriori(data=data.rules,
+                        parameter = list(support=0.6,confidence=0.8,minlen=3,maxlen=6,target="rules"),
+                        appearance = list(rhs=c("Class=Vivo")))
+
+inspect(sort(x=rules_vivo,decreasing = TRUE,by="confidence"))
