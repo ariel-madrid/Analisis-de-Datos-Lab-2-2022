@@ -181,14 +181,53 @@ ggplot(pie,aes(x="",y=porcentaje, fill=labs))+
 
 
 # Sin embargo, importan las reglas que contemplen a la clase en el consecuente
+
+#Reglas que tienen a la clase muerto como consecuente
 rules_muerto <- apriori(data=data.rules,
-                 parameter = list(support=0.08,confidence=0.8,minlen=2,maxlen=6,target="rules"),
+                 parameter = list(support=0.06,confidence=0.8,minlen=2,maxlen=9,target="rules"),
                  appearance = list(rhs=c("Class=Muerto")))
+
+rules_muerto <- rules_muerto[!is.redundant(rules_muerto)]
 
 inspect(sort(x=rules_muerto,decreasing = TRUE,by="confidence"))
 
+#Reglas que tienen a la clase vivo como consecuente
 rules_vivo <- apriori(data=data.rules,
-                        parameter = list(support=0.6,confidence=0.8,minlen=3,maxlen=6,target="rules"),
+                        parameter = list(support=0.6,confidence=0.8,minlen=3,maxlen=9,target="rules"),
                         appearance = list(rhs=c("Class=Vivo")))
 
+rules_vivo <- rules_vivo[!is.redundant(rules_vivo)]
+
 inspect(sort(x=rules_vivo,decreasing = TRUE,by="confidence"))
+
+#Otras reglas interesantes.
+rules_sgot <- apriori(data=data.rules,
+                      parameter = list(support=0.15,confidence=0.8,minlen=3,maxlen=9,target="rules"),
+                      appearance = list(rhs=c("Sgot=Sgot alta")))
+
+rules_sgot <- rules_sgot[!is.redundant(rules_sgot)]
+
+inspect(sort(x=rules_sgot,decreasing = TRUE,by="lift"))
+
+#Otras reglas interesantes.
+rules_albumin <- apriori(data=data.rules,
+                 parameter = list(support=0.1,confidence=0.8,minlen=3,maxlen=6,target="rules"),
+                 appearance = list(rhs=c("Albumin=Albumin baja")))
+
+rules_albumin <- rules_albumin[!is.redundant(rules_albumin)]
+
+inspect(sort(x=rules_albumin,decreasing = TRUE,by="lift"))
+
+#Otras reglas interesantes.
+rules_bilirubin <- apriori(data=data.rules,
+                 parameter = list(support=0.1,confidence=0.8,minlen=2,maxlen=6,target="rules"),
+                 appearance = list(rhs=c("Bilirubin=Bilirubin alta")))
+
+rules_bilirubin <- rules_bilirubin[!is.redundant(rules_bilirubin)]
+
+inspect(sort(x=rules_bilirubin,decreasing = TRUE,by="lift"))
+
+
+
+
+
