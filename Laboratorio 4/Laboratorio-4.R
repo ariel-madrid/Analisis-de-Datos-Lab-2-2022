@@ -116,20 +116,67 @@ for (cols in colnames(data)) {
   }
 }
 
+#Discretizar variables numericas.
+data.tree <- data
+
+#Discretizar edad
+data.tree$Age[data.tree$Age>=5 & data.tree$Age<=13] <- "Nino"
+data.tree$Age[data.tree$Age>=14 & data.tree$Age<=17] <- "Adolescente"
+data.tree$Age[data.tree$Age>=18 & data.tree$Age<=35] <- "Adulto joven"
+data.tree$Age[data.tree$Age>=36 & data.tree$Age<=64] <- "Adulto"
+data.tree$Age[data.tree$Age == 78] <- "Tercera edad"
+data.tree$Age[data.tree$Age == 66] <- "Tercera edad"
+data.tree$Age[data.tree$Age == 65] <- "Tercera edad"
+data.tree$Age[data.tree$Age == 69] <- "Tercera edad"
+data.tree$Age[data.tree$Age == 72] <- "Tercera edad"
+
+data.tree$Age <- as.factor(data.tree$Age)
+
+#Discretizar bilirubin
+data.tree$Bilirubin[data$Bilirubin<0.1] <- "Bilirubin baja"
+data.tree$Bilirubin[data$Bilirubin>=0.1 & data$Bilirubin<=1.2] <- "Bilirubin normal"
+data.tree$Bilirubin[data$Bilirubin>1.2 & data$Bilirubin<=Inf] <- "Bilirubin alta"
+
+data.tree$Bilirubin <- as.factor(data.tree$Bilirubin)
+
+#Discretizar Alk Phosphate
+data.tree$Alk_Phosphate[data$Alk_Phosphate<30] <- "Alk Phosphate baja"
+data.tree$Alk_Phosphate[data$Alk_Phosphate>=30 & data$Alk_Phosphate<=120] <- "Alk Phosphate normal"
+data.tree$Alk_Phosphate[data$Alk_Phosphate>120 & data$Alk_Phosphate<=Inf] <- "Alk Phosphate alta"
+
+data.tree$Alk_Phosphate <- as.factor(data.tree$Alk_Phosphate)
+
+#Discretizar Sgot
+data.tree$Sgot[data$Sgot<8] <- "Sgot baja"
+data.tree$Sgot[data$Sgot>=8 & data$Sgot<=45] <- "Sgot normal"
+data.tree$Sgot[data$Sgot>45 & data$Sgot<=Inf] <- "Sgot alta"
+
+data.tree$Sgot <- as.factor(data.tree$Sgot)
+
+#Discretizar Albumin
+data.tree$Albumin[data.tree$Albumin<3.4] <- "Albumin baja"
+data.tree$Albumin[data.tree$Albumin>=3.4 & data.tree$Albumin<=5.4] <- "Albumin normal"
+data.tree$Albumin[data.tree$Albumin==6.4] <- "Albumin alta"
+
+data.tree$Albumin <- as.factor(data.tree$Albumin)
+
 #Datos de prueba
-training <- createDataPartition(data$Class,p=0.7)$Resample1
-training.set <- data[training,]
-test.set <- data[-training,]
+set.seed(369)
+training <- createDataPartition(data.tree$Class,p=0.7)$Resample1
+training.set <- data.tree[training,]
+test.set <- data.tree[-training,]
 
 #Arbol de decision
 tree = C5.0(Class~., training.set)
-tree.rules <- C5.0(x=training.set[,-8],y=training.set$Class,rules=T)
-tree.pred.class <- predict(tree, test.set[,-8],type="class")
-tree.pred.prob <- predict(tree,test.set[,-8],type="prob")
-
-plot(tree)
+tree.rules <- C5.0(x=training.set[,-1],y=training.set$Class,rules=T)
+tree.pred.class <- predict(tree, test.set[,-1],type="class")
+tree.pred.prob <- predict(tree,test.set[,-1],type="prob")
 
 
+#Graficar arbol de decision
+#plot(tree)
+
+#Matriz de confusion
 conf.matrix.tree <- confusionMatrix(table(test.set$Class,tree.pred.class))
 print(conf.matrix.tree)
 
