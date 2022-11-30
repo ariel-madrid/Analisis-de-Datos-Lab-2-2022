@@ -5,7 +5,7 @@ library(ggpubr)
 library(dplyr)
 library("C50")
 library("caret")
-library(partykit)
+library(groupdata2)
 # Leer data set de Hepatitis. -----
 data <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data", fileEncoding = "UTF-8", sep = ",")
 
@@ -91,9 +91,11 @@ for (cols in colnames(data)) {
 #Data 
 data.tree <- data
 
-#Datos de prueba
-set.seed(111)
+#Datos de entrenamiento
+set.seed(222)
 training <- createDataPartition(data.tree$Class,p=0.7)$Resample1
+
+#Datos de prueba
 training.set <- data.tree[training,]
 test.set <- data.tree[-training,]
 
@@ -103,10 +105,21 @@ tree.rules <- C5.0(x=training.set[,-1],y=training.set$Class,rules=T)
 tree.pred.class <- predict(tree, test.set[,-1],type="class")
 tree.pred.prob <- predict(tree,test.set[,-1],type="prob")
 
-
-#Graficar arbol de decision
-
-
-#Matriz de confusion
+#Matriz de confusion 
 conf.matrix.tree <- confusionMatrix(table(test.set$Class,tree.pred.class))
 print(conf.matrix.tree)
+
+######################################
+tmp<-upsample(data, cat_col = "Class")
+
+training2 <- createDataPartition(tmp$Class,p=0.7)$Resample1
+training.set2 <- data.tree[training2,]
+test.set2 <- data.tree[-training2,]
+
+tree2 = C5.0(training.set2[-1], training.set2$Class)
+tree.rules2 <- C5.0(x=training.set2[,-1],y=training.set2$Class,rules=T)
+tree.pred.class2 <- predict(tree2, test.set2[,-1],type="class")
+tree.pred.prob2 <- predict(tree2,test.set2[,-1],type="prob")
+
+conf.matrix.tree2 <- confusionMatrix(table(test.set2$Class,tree.pred.class2))
+print(conf.matrix.tree2)
